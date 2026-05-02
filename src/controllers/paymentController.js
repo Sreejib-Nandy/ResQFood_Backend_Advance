@@ -78,7 +78,7 @@ export const razorpayWebhook = async (req, res) => {
       if (user.subscriptionEndDate && user.subscriptionEndDate > now) {
         user.subscriptionEndDate = new Date(
           user.subscriptionEndDate.getTime() +
-            30 * 24 * 60 * 60 * 1000
+          30 * 24 * 60 * 60 * 1000
         );
       } else {
         user.subscriptionStartDate = now;

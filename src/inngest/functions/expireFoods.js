@@ -36,20 +36,20 @@ export const expireFoods = inngest.createFunction(
       console.warn("Socket not initialized - skipping emits at", now);
     }
 
-    if(io) {
-    expiredPosts.forEach(post => {
-      // notify restaurant
-      io.to(`user:${post.restaurantId.toString()}`).emit("food_expired", {
-        id: post._id.toString(),
-      });
-
-      // notify NGO if claimed
-      if (post.claimedBy) {
-        io.to(`user:${post.claimedBy.toString()}`).emit("food_expired", {
+    if (io) {
+      expiredPosts.forEach(post => {
+        // notify restaurant
+        io.to(`user:${post.restaurantId.toString()}`).emit("food_expired", {
           id: post._id.toString(),
         });
-      }
-    });
+
+        // notify NGO if claimed
+        if (post.claimedBy) {
+          io.to(`user:${post.claimedBy.toString()}`).emit("food_expired", {
+            id: post._id.toString(),
+          });
+        }
+      });
     }
 
     console.log("Expired foods:", expiredPosts.length);

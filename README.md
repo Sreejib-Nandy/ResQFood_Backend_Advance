@@ -1,7 +1,9 @@
 # ResQFood – Backend API
+
 #### ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.
 
 #### This repository contains the Node.js + Express + MongoDB backend, handling authentication(Email, Google OAuth), Payment Integration, Food Listings, Geo-based discovery, NGO coordination, Dashboard and Analytics and secure APIs and notifications(Nodemailer).
+
 ---
 
 ## 🚀 Features
@@ -36,11 +38,11 @@ resqfood-backend/
 │ │ └── database.js
 │ │
 │ ├── controllers/
-│ │ ├── authController.js 
-│ │ ├── foodController.js 
-│ │ ├── mapController.js 
+│ │ ├── authController.js
+│ │ ├── foodController.js
+│ │ ├── mapController.js
 │ │ ├── paymentController.js
-│ │ ├── statController.js 
+│ │ ├── statController.js
 │ │ └── userController.js
 │ │
 │ ├── inngest/
@@ -52,20 +54,20 @@ resqfood-backend/
 │ │ │ ├── subscriptionExpiry.js
 │ │ │ └── trialExpiry.js
 │ │ │
-│ │ ├── client.js 
-│ │ └── handler.js 
+│ │ ├── client.js
+│ │ └── handler.js
 │ │
 │ ├── middlewares/
-│ │ ├── authMiddleware.js 
-│ │ ├── foodMiddleware.js 
-│ │ ├── socketMiddleware.js 
-│ │ ├── subscriptionMiddleware.js 
+│ │ ├── authMiddleware.js
+│ │ ├── foodMiddleware.js
+│ │ ├── socketMiddleware.js
+│ │ ├── subscriptionMiddleware.js
 │ │ └── upload.js
 │ │
 │ ├── models/
-│ │ ├── claim.js 
-│ │ ├── foodPost.js 
-│ │ └── User.js 
+│ │ ├── claim.js
+│ │ ├── foodPost.js
+│ │ └── User.js
 │ │
 │ ├── routes/
 │ │ ├── authRoutes.js
@@ -76,15 +78,15 @@ resqfood-backend/
 │ │ └── userRoutes.js
 │ │
 │ ├── socket/
-│ │ └── socketHandler.js 
+│ │ └── socketHandler.js
 │ │
 │ ├── utils/
-│ │ ├── emailTemplates.js 
+│ │ ├── emailTemplates.js
 │ │ └── sendEmail.js
 │ │
 │ └── app.js
 │
-├── .env 
+├── .env
 ├── .gitignore
 ├── package.json
 ├── package-lock.json
@@ -138,23 +140,23 @@ npm run dev
 ## 🔐 Environment Variables (.env)
 
 ```env
-PORT = 
-MONGO_URI = 
-JWT_SECRET = 
-JWT_TIMEOUT = 
-CLOUDINARY_CLOUD_NAME = 
-CLOUDINARY_API_KEY = 
-CLOUDINARY_API_SECRET = 
-FRONTEND_URL = 
-GOOGLE_CLIENT_ID = 
-GOOGLE_CLIENT_SECRET = 
-RAZORPAY_KEY_ID = 
-RAZORPAY_SECRET = 
-RAZORPAY_WEBHOOK_SECRET = 
-INNGEST_SIGNING_KEY = 
-INNGEST_EVENT_KEY = 
+PORT =
+MONGO_URI =
+JWT_SECRET =
+JWT_TIMEOUT =
+CLOUDINARY_CLOUD_NAME =
+CLOUDINARY_API_KEY =
+CLOUDINARY_API_SECRET =
+FRONTEND_URL =
+GOOGLE_CLIENT_ID =
+GOOGLE_CLIENT_SECRET =
+RAZORPAY_KEY_ID =
+RAZORPAY_SECRET =
+RAZORPAY_WEBHOOK_SECRET =
+INNGEST_SIGNING_KEY =
+INNGEST_EVENT_KEY =
 EMAIL_HOST =
-EMAIL_PORT = 
+EMAIL_PORT =
 EMAIL_USER =
 EMAIL_PASS =
 EMAIL_FROM =
@@ -165,93 +167,93 @@ EMAIL_FROM =
 ## 📡 API Endpoints
 
 **Base URL :**
+
 ```bash
 http://localhost:5000/api
 ```
-
 
 ---
 
 ## 🔐 Authentication (`/api/auth`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/auth/google` | Public | Google OAuth login |
-| POST | `/auth/signup` | Public | Register new user |
-| POST | `/auth/login` | Public | Login user |
-| POST | `/auth/logout` | Protected | Logout user |
-| PUT | `/auth/complete-profile` | Protected | Complete user profile |
+| Method | Endpoint                 | Access    | Description           |
+| ------ | ------------------------ | --------- | --------------------- |
+| GET    | `/auth/google`           | Public    | Google OAuth login    |
+| POST   | `/auth/signup`           | Public    | Register new user     |
+| POST   | `/auth/login`            | Public    | Login user            |
+| POST   | `/auth/logout`           | Protected | Logout user           |
+| PUT    | `/auth/complete-profile` | Protected | Complete user profile |
 
 ---
 
 ## 👤 User (`/api/user`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/user/me` | Protected | Get current user |
-| PUT | `/user/update` | Protected | Update profile |
-| DELETE | `/user/delete` | Protected | Delete account |
+| Method | Endpoint       | Access    | Description      |
+| ------ | -------------- | --------- | ---------------- |
+| GET    | `/user/me`     | Protected | Get current user |
+| PUT    | `/user/update` | Protected | Update profile   |
+| DELETE | `/user/delete` | Protected | Delete account   |
 
 ---
 
 ## 🍱 Food (`/api/food`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/food/create` | Restaurant | Create food post |
-| GET | `/food/` | Protected | Get all food |
-| GET | `/food/nearby` | Protected | Get nearby food |
-| GET | `/food/restaurant/:restaurantId` | Protected | Get restaurant posts |
-| GET | `/food/ngo/claimed` | NGO | Get claimed foods |
-| POST | `/food/claim/:id` | NGO | Claim food |
-| POST | `/food/accept` | Restaurant | Accept claim |
-| POST | `/food/reject` | Restaurant | Reject claim |
-| POST | `/food/collect` | NGO | Mark as collected |
-| GET | `/food/claims` | Restaurant | Restaurant claims dashboard |
+| Method | Endpoint                         | Access     | Description                 |
+| ------ | -------------------------------- | ---------- | --------------------------- |
+| POST   | `/food/create`                   | Restaurant | Create food post            |
+| GET    | `/food/`                         | Protected  | Get all food                |
+| GET    | `/food/nearby`                   | Protected  | Get nearby food             |
+| GET    | `/food/restaurant/:restaurantId` | Protected  | Get restaurant posts        |
+| GET    | `/food/ngo/claimed`              | NGO        | Get claimed foods           |
+| POST   | `/food/claim/:id`                | NGO        | Claim food                  |
+| POST   | `/food/accept`                   | Restaurant | Accept claim                |
+| POST   | `/food/reject`                   | Restaurant | Reject claim                |
+| POST   | `/food/collect`                  | NGO        | Mark as collected           |
+| GET    | `/food/claims`                   | Restaurant | Restaurant claims dashboard |
 
 ---
 
 ## 📍 Location (`/api/location`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/location/update` | Protected | Update live location |
+| Method | Endpoint           | Access    | Description          |
+| ------ | ------------------ | --------- | -------------------- |
+| POST   | `/location/update` | Protected | Update live location |
 
 ---
 
 ## 💳 Payment (`/api/payment`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/payment/order` | Protected | Create Razorpay order |
-| POST | `/payment/webhook` | Public (Webhook) | Handle Razorpay webhook |
+| Method | Endpoint           | Access           | Description             |
+| ------ | ------------------ | ---------------- | ----------------------- |
+| POST   | `/payment/order`   | Protected        | Create Razorpay order   |
+| POST   | `/payment/webhook` | Public (Webhook) | Handle Razorpay webhook |
 
 ---
 
 ## 📊 Stats (`/api/stats`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/stats/monthly` | Restaurant | Monthly stats |
-| GET | `/stats/impact` | Restaurant | Impact stats |
-| GET | `/stats/status` | Restaurant | Status stats |
+| Method | Endpoint         | Access     | Description   |
+| ------ | ---------------- | ---------- | ------------- |
+| GET    | `/stats/monthly` | Restaurant | Monthly stats |
+| GET    | `/stats/impact`  | Restaurant | Impact stats  |
+| GET    | `/stats/status`  | Restaurant | Status stats  |
 
 ---
 
 ## ⚙️ Inngest (`/api/inngest`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/inngest` | Internal | Inngest event handler |
+| Method | Endpoint   | Access   | Description           |
+| ------ | ---------- | -------- | --------------------- |
+| POST   | `/inngest` | Internal | Inngest event handler |
 
 ---
 
 ## 🔐 Access Control
 
-- **Public** → No authentication required  
-- **Protected** → Requires JWT authentication  
-- **Restaurant** → Only restaurant role  
-- **NGO** → Only NGO role  
+- **Public** → No authentication required
+- **Protected** → Requires JWT authentication
+- **Restaurant** → Only restaurant role
+- **NGO** → Only NGO role
 
 ---
 
@@ -307,14 +309,13 @@ git commit -m "feat: add your feature description"
 git push origin feature/your-feature-name
 ```
 
---- 
+---
 
 ### 🔁 Create Pull Request
 
 - Go to your fork on GitHub
 - Click "Compare & Pull Request"
 - Add a clear description of your changes
-
 
 ### 📌 Contribution Guidelines
 
@@ -334,4 +335,3 @@ git push origin feature/your-feature-name
 ## ⭐ Support
 
 If you find this project helpful, consider giving it a ⭐ on GitHub!
-

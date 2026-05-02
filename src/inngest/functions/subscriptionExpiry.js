@@ -4,7 +4,7 @@ import User from "../../models/User.js";
 export const expireSubscriptions = inngest.createFunction(
   {
     id: "expire-subscriptions",
-    triggers: [{cron: "0 2 * * *"}] // daily
+    triggers: [{ cron: "0 2 * * *" }] // daily
   },
   async ({ step }) => {
     const now = new Date();

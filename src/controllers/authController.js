@@ -81,7 +81,7 @@ export const googleAuth = async (req, res) => {
         return res.status(200).json({
             success: true,
             user,
-            isNewUser, 
+            isNewUser,
             message: isNewUser ? "User created successfully" : "Login successfully",
         });
 
@@ -180,10 +180,17 @@ export const completeProfile = async (req, res) => {
         user.address = address;
         user.contactInfo = contactInfo;
 
-        user.location = {
-            type: "Point",
-            coordinates: [longitude, latitude],
-        };
+        if (
+            latitude !== null &&
+            latitude !== undefined &&
+            longitude !== null &&
+            longitude !== undefined
+        ) {
+            user.location = {
+                type: "Point",
+                coordinates: [longitude, latitude],
+            };
+        }
 
         user.isProfileComplete = true;
 

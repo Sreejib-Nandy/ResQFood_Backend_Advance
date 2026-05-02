@@ -60,7 +60,7 @@ app.get("/", (req, res) => {
 });
 
 app.use((req, res, next) => {
- const err = new Error(`Can't find ${req.originalUrl}`);
+  const err = new Error(`Can't find ${req.originalUrl}`);
   err.statusCode = 404;
   next(err);
 });

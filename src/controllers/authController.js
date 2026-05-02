@@ -23,11 +23,11 @@ export const googleAuth = async (req, res) => {
         // FIX 1: Use process.env variables directly here
         const { tokens } = await oauth2Client.getToken({
             code: code,
-            client_id: process.env.GOOGLE_CLIENT_ID, 
+            client_id: process.env.GOOGLE_CLIENT_ID,
             client_secret: process.env.GOOGLE_CLIENT_SECRET,
             redirect_uri: 'postmessage'
         });
-        
+
         oauth2Client.setCredentials(tokens);
 
         // FIX 2: Use the 'tokens' variable you destructured above, not 'googleRes'
@@ -39,7 +39,11 @@ export const googleAuth = async (req, res) => {
 
         let user = await User.findOne({ email });
 
+        let isNewUser = false;
+
         if (!user) {
+            isNewUser = true;
+
             user = await User.create({
                 name,
                 email,
@@ -76,8 +80,9 @@ export const googleAuth = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Google authentication successful",
-            user
+            user,
+            isNewUser, 
+            message: isNewUser ? "User created successfully" : "Login successfully",
         });
 
     } catch (error) {

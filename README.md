@@ -1,5 +1,5 @@
 # ResQFood – Backend API
-#### ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.
+> **ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.**
 
 #### This repository contains the Node.js + Express + MongoDB backend, handling authentication(Email, Google OAuth), Payment Integration, Food Listings, Geo-based discovery, NGO coordination, Dashboard and Analytics and secure APIs and notifications(Nodemailer).
 ---
@@ -115,19 +115,19 @@ resqfood-backend/
 git clone https://github.com/your-username/resqfood-backend.git
 ```
 
-# Navigate
+## Navigate
 
 ```bash
 cd resqfood-backend
 ```
 
-# Install dependencies
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-# Run server
+## Run server
 
 ```bash
 npm run dev

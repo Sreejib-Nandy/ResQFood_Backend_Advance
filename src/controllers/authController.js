@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import axios from "axios";
-import { oauth2Client } from "../utils/googleClient.js";
+import { google } from "googleapis";
 
 // SignUp for new user - No Log in required
 export const googleAuth = async (req, res) => {
@@ -13,12 +13,26 @@ export const googleAuth = async (req, res) => {
         return res.status(400).json({ message: "Authorization code missing" });
     }
 
-    try {
-        const googleRes = await oauth2Client.getToken(code);
-        oauth2Client.setCredentials(googleRes.tokens);
+    const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        'postmessage'
+    );
 
+    try {
+        // FIX 1: Use process.env variables directly here
+        const { tokens } = await oauth2Client.getToken({
+            code: code,
+            client_id: process.env.GOOGLE_CLIENT_ID, 
+            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+            redirect_uri: 'postmessage'
+        });
+        
+        oauth2Client.setCredentials(tokens);
+
+        // FIX 2: Use the 'tokens' variable you destructured above, not 'googleRes'
         const userRes = await axios.get(
-            `https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+            `https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${tokens.access_token}`
         );
 
         const { email, name, picture } = userRes.data;
@@ -50,7 +64,7 @@ export const googleAuth = async (req, res) => {
         const token = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_TIMEOUT }
+            { expiresIn: process.env.JWT_TIMEOUT || '7d' }
         );
 
         res.cookie("token", token, {
@@ -60,14 +74,14 @@ export const googleAuth = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Google authentication successful",
             user
         });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Internal Server Error during Google Auth" });
     }
 };
 

@@ -1,6 +1,11 @@
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 # ResQFood – Backend API
+<<<<<<< HEAD
 
 #### ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.
+=======
+> **ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.**
+>>>>>>> e965a1a5bdae60d5efbde6209fd90aac7c47fb88
 
 #### This repository contains the Node.js + Express + MongoDB backend, handling authentication(Email, Google OAuth), Payment Integration, Food Listings, Geo-based discovery, NGO coordination, Dashboard and Analytics and secure APIs and notifications(Nodemailer).
 
@@ -117,19 +122,19 @@ resqfood-backend/
 git clone https://github.com/your-username/resqfood-backend.git
 ```
 
-# Navigate
+## Navigate
 
 ```bash
 cd resqfood-backend
 ```
 
-# Install dependencies
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-# Run server
+## Run server
 
 ```bash
 npm run dev
@@ -323,6 +328,12 @@ git push origin feature/your-feature-name
 - Maintain consistent code style
 - Avoid breaking existing features
 - Test your changes before submitting
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
 
 ---
 

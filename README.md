@@ -1,3 +1,4 @@
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 # ResQFood – Backend API
 > **ResQFood is a scalable backend system built to reduce food wastage by connecting food donors (restaurants) with NGOs in real time.**
 

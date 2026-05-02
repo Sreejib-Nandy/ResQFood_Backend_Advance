@@ -326,6 +326,12 @@ git push origin feature/your-feature-name
 
 ---
 
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+---
+
 ## 👨‍💻 Author
 
 - Sreejib Nandy

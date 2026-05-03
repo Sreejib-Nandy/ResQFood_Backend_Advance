@@ -211,6 +211,8 @@ http://localhost:5000/api
 | POST   | `/food/reject`                   | Restaurant | Reject claim                |
 | POST   | `/food/collect`                  | NGO        | Mark as collected           |
 | GET    | `/food/claims`                   | Restaurant | Restaurant claims dashboard |
+| PUT    | `/food/:id`                      | Restaurant | Update food post            |
+| DELETE | `/food/:id`                      | Restaurant | Delete food post            |
 
 ---
 

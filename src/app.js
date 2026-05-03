@@ -42,6 +42,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.post("/api/payment/webhook", express.raw({ type: "application/json" }), razorpayWebhook);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,7 +54,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/payment", paymentRoutes);
-app.post("/api/payment/webhook", express.raw({ type: "application/json" }), razorpayWebhook);
 app.use("/api/inngest", inngestHandler);
 
 app.get("/", (req, res) => {

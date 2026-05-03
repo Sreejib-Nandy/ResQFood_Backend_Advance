@@ -31,11 +31,12 @@ export const createOrderController = async (req, res) => {
 // WEBHOOK HANDLER
 export const razorpayWebhook = async (req, res) => {
   try {
+    console.log("Webhook Hit")
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
     // verify signature (RAW body required)
     const shasum = crypto.createHmac("sha256", secret);
-    shasum.update(req.body.toString()); // raw body
+    shasum.update(req.body); // raw body
     const digest = shasum.digest("hex");
 
     const signature = req.headers["x-razorpay-signature"];

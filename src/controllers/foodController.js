@@ -93,7 +93,7 @@ export const updateFood = async (req, res) => {
       "quantity",
       "unit",
       "description",
-      "location",
+      "expiry_time"
     ];
 
     // Apply updates

@@ -99,6 +99,14 @@ export const deleteProfile = async (req, res) => {
       );
     }
 
+    if (user?.isDeleted) {
+      return res.status(403).json({
+        success: false,
+        code: "ACCOUNT_DEACTIVATED",
+        message: "Account is deactivated.",
+      });
+    }
+
     // deactivate instead of delete
     user.isDeleted = true;
     await user.save();

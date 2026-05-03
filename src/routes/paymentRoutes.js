@@ -9,7 +9,4 @@ const router = express.Router();
 
 router.post("/order", protect, createOrderController);
 
-// webhook route (RAW body)
-router.post("/webhook", razorpayWebhook);
-
 export default router;

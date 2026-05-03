@@ -10,6 +10,8 @@ import locationRoutes from "./routes/locationRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import { inngestHandler } from "./inngest/handler.js";
 
+import { razorpayWebhook } from "./controllers/paymentController.js"
+
 const app = express();
 
 const allowedOrigins = [
@@ -41,8 +43,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -53,6 +53,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/payment", paymentRoutes);
+app.post("/api/payment/webhook", express.raw({ type: "application/json" }), razorpayWebhook);
 app.use("/api/inngest", inngestHandler);
 
 app.get("/", (req, res) => {

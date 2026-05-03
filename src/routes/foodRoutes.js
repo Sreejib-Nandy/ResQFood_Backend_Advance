@@ -1,6 +1,8 @@
 import express from "express";
 import {
     createFood,
+    updateFood, 
+    deleteFood,
     getAllFood,
     getNearbyFoods,
     getFoodPostsByRestaurant,
@@ -27,6 +29,23 @@ router.post(
     checkAccess,
     parser.single("food_image"),
     createFood
+);
+
+// Update food post
+router.put(
+  "/:id",
+  protect,
+  verifyRestaurantOwnership,
+  upload.single("food_image"),
+  updateFood
+);
+
+// Delete food post
+router.delete(
+  "/:id",
+  protect,
+  verifyRestaurantOwnership,
+  deleteFood
 );
 
 // Get all available food

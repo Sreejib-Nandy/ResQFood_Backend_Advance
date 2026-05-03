@@ -69,7 +69,7 @@ export const createFood = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Food created",
+      message: "Food created successfully",
       post,
     });
 
@@ -82,6 +82,114 @@ export const createFood = async (req, res) => {
   }
 };
 
+// Update the food post
+export const updateFood = async (req, res) => {
+  try {
+    const updates = req.body;
+
+    // Allowed fields
+    const allowedUpdates = [
+      "food_name",
+      "quantity",
+      "unit",
+      "description",
+      "location",
+    ];
+
+    // Apply updates
+    allowedUpdates.forEach((field) => {
+      if (updates[field] !== undefined) {
+        req.food[field] =
+          field === "quantity"
+            ? Number(updates[field])
+            : updates[field];
+      }
+    });
+
+    // Expiry update
+    if (updates.expiry_time) {
+      req.food.expiry_time = new Date(updates.expiry_time);
+    }
+
+    // Image update
+    if (req.file) {
+      if (req.food.food_image?.[0]?.public_id) {
+        await cloudinary.uploader.destroy(
+          req.food.food_image[0].public_id
+        );
+      }
+
+      req.food.food_image = [
+        {
+          url: req.file.path,
+          public_id: req.file.filename,
+        },
+      ];
+    }
+
+    await req.food.save();
+
+    // Socket emit (same pattern as create)
+    let io;
+    try {
+      io = getIO();
+    } catch {
+      console.warn("Socket not initialized");
+    }
+
+    if (io) {
+      io.to("role:ngo").emit("food_updated", req.food);
+    }
+
+    return res.json({
+      success: true,
+      message: "Food updated successfully",
+      food: req.food,
+    });
+
+  } catch (error) {
+    console.error("Update food error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Delete the food post
+export const deleteFood = async (req, res) => {
+  try {
+    const foodId = req.food._id;
+
+    await req.food.deleteOne();
+
+    // Socket emit (same pattern)
+    let io;
+    try {
+      io = getIO();
+    } catch {
+      console.warn("Socket not initialized");
+    }
+
+    if (io) {
+      io.to("role:ngo").emit("food_deleted", {
+        foodId: foodId.toString(),
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Food post deleted",
+    });
+
+  } catch (error) {
+    console.error("Delete food error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // Get all foodposts from specific restaurant
 export const getFoodPostsByRestaurant = async (req, res) => {

@@ -6,7 +6,6 @@ import cloudinary from "../config/cloudinary.js";
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
-
     const { address, contactInfo, latitude, longitude } = req.body;
 
     const user = await User.findById(userId);
@@ -21,15 +20,15 @@ export const updateProfile = async (req, res) => {
 
     if (user.isDeleted) {
       return res.status(403).json({
-        message: "Account deactivated"
+        message: "Account deactivated",
       });
     }
 
-    // validate before update
+    // contact validation
     if (contactInfo) {
       if (!/^\d{10}$/.test(contactInfo)) {
         return res.status(400).json({
-          message: "Invalid contact number"
+          message: "Invalid contact number",
         });
       }
       user.contactInfo = contactInfo;
@@ -37,7 +36,9 @@ export const updateProfile = async (req, res) => {
 
     if (address) user.address = address;
 
-    // lat/lng check
+    // location update
+    let locationUpdated = false;
+
     if (
       latitude !== undefined &&
       longitude !== undefined &&
@@ -48,21 +49,29 @@ export const updateProfile = async (req, res) => {
         type: "Point",
         coordinates: [Number(longitude), Number(latitude)],
       };
+      locationUpdated = true;
     }
 
     await user.save();
 
+    // sync food posts location
+    if (locationUpdated) {
+      await FoodPost.updateMany(
+        { restaurantId: userId },
+        { $set: { location: user.location } }
+      );
+    }
+
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
-      user
+      user,
     });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 export const deleteProfile = async (req, res) => {
   try {

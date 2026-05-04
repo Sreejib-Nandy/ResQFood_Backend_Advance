@@ -16,6 +16,7 @@ import {
 
 import { protect } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/authMiddleware.js";
+import {verifyRestaurantOwnership } from "../middlewares/foodMiddleware.js"; 
 import { checkAccess } from "../middlewares/subscriptionMiddleware.js";
 import parser from "../middlewares/upload.js";
 
@@ -36,7 +37,7 @@ router.put(
   "/:id",
   protect,
   verifyRestaurantOwnership,
-  upload.single("food_image"),
+  parser.single("food_image"),
   updateFood
 );
 

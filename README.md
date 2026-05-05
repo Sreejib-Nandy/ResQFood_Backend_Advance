@@ -213,6 +213,8 @@ http://localhost:5000/api
 | GET    | `/food/claims`                   | Restaurant | Restaurant claims dashboard |
 | PUT    | `/food/:id`                      | Restaurant | Update food post            |
 | DELETE | `/food/:id`                      | Restaurant | Delete food post            |
+| GET | `/food/claims/my`                      | NGO | Fetch own claim requested foods |
+| GET | `/food/claims/:claimId`                      | NGO | Get specific claim details |
 
 ---
 

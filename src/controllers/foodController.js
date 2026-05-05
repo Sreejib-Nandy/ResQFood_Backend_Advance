@@ -3,6 +3,7 @@ import ClaimFood from "../models/claim.js";
 import { getIO } from "../socket/socketHandler.js";
 import axios from "axios";
 import User from "../models/User.js";
+import cloudinary from "../config/cloudinary.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { foodClaimedOwnerTemplate, foodClaimedNgoTemplate, foodCollectedNgoTemplate, foodCollectedOwnerTemplate } from "../utils/emailTemplates.js";
 
@@ -87,7 +88,6 @@ export const updateFood = async (req, res) => {
   try {
     const updates = req.body;
 
-    // Allowed fields
     const allowedUpdates = [
       "food_name",
       "quantity",
@@ -96,30 +96,36 @@ export const updateFood = async (req, res) => {
       "expiry_time"
     ];
 
-    // Apply updates
+    const food = await FoodPost.findById(req.params.id);
+
+    if (!food) {
+      return res.status(404).json({
+        success: false,
+        message: "Food not found",
+      });
+    }
+
     allowedUpdates.forEach((field) => {
       if (updates[field] !== undefined) {
-        req.food[field] =
+        food[field] =
           field === "quantity"
             ? Number(updates[field])
             : updates[field];
       }
     });
 
-    // Expiry update
     if (updates.expiry_time) {
-      req.food.expiry_time = new Date(updates.expiry_time);
+      food.expiry_time = new Date(updates.expiry_time);
     }
 
-    // Image update
     if (req.file) {
-      if (req.food.food_image?.[0]?.public_id) {
+      if (food.food_image?.[0]?.public_id) {
         await cloudinary.uploader.destroy(
-          req.food.food_image[0].public_id
+          food.food_image[0].public_id
         );
       }
 
-      req.food.food_image = [
+      food.food_image = [
         {
           url: req.file.path,
           public_id: req.file.filename,
@@ -127,7 +133,7 @@ export const updateFood = async (req, res) => {
       ];
     }
 
-    await req.food.save();
+    await food.save();
 
     // Socket emit (same pattern as create)
     let io;
@@ -138,12 +144,12 @@ export const updateFood = async (req, res) => {
     }
 
     if (io) {
-      io.to("role:ngo").emit("food_updated", req.food);
+      io.to("role:ngo").emit("food_updated", food);
     }
 
     return res.json({
       success: true,
-      message: "Food updated successfully",
+      message: "Food post updated successfully",
       food: req.food,
     });
 
@@ -159,9 +165,20 @@ export const updateFood = async (req, res) => {
 // Delete the food post
 export const deleteFood = async (req, res) => {
   try {
-    const foodId = req.food._id;
+    const food = await FoodPost.findById(req.params.id);
 
-    await req.food.deleteOne();
+    if (!food) {
+      return res.status(404).json({
+        success: false,
+        message: "Food not found",
+      });
+    }
+
+    const foodId = food._id;
+
+    await food.deleteOne();
+
+    await ClaimFood.deleteMany({ foodPostId: foodId });
 
     // Socket emit (same pattern)
     let io;
@@ -179,7 +196,7 @@ export const deleteFood = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Food post deleted",
+      message: "Food post deleted successfully",
     });
 
   } catch (error) {
@@ -231,7 +248,13 @@ export const getNearbyFoods = async (req, res) => {
   try {
     let { radius_km } = req.query;
     const user = await User.findById(req.user.userId);
-    radius_km = Math.min(parseFloat(radius_km || "5"), 50);
+    radius_km = parseFloat(radius_km);
+
+    if (!radius_km || isNaN(radius_km)) {
+      radius_km = 5;
+    }
+
+    radius_km = Math.max(1, Math.min(radius_km, 50));
 
     // use user's saved location if not provided
     if (!user || !user.location?.coordinates) {
@@ -252,7 +275,7 @@ export const getNearbyFoods = async (req, res) => {
           $maxDistance: meters
         }
       }
-    }).sort({ createdAt: -1 });
+    }).populate("restaurantId", "name address contactInfo").sort({ createdAt: -1 });
 
     res.json({ success: true, foods });
   } catch (error) {
@@ -260,23 +283,33 @@ export const getNearbyFoods = async (req, res) => {
   }
 };
 
-
 export const getClaimedFoodsByNGO = async (req, res) => {
   try {
     const ngoId = req.user.userId;
 
-    const foods = await FoodPost.find({
-      claimedBy: ngoId,
-      status: { $in: ["claimed", "accepted", "collected"] },
+    const claims = await ClaimFood.find({
+      ngoId,
+      status: { $in: ["accepted", "collected"] },
     })
-      .populate("restaurantId", "name address")
+      .populate({
+        path: "foodPostId",
+        select: "food_name quantity unit description expiry_time food_image location",
+      })
+      .populate({
+        path: "restaurantId",
+        select: "name address location",
+      })
       .sort({ updatedAt: -1 });
+
+    // remove broken references
+    const validClaims = claims.filter(c => c.foodPostId !== null);
 
     res.status(200).json({
       success: true,
-      count: foods.length,
-      data: foods,
+      count: validClaims.length,
+      data: validClaims,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -285,31 +318,20 @@ export const getClaimedFoodsByNGO = async (req, res) => {
   }
 };
 
-
 export const claimFood = async (req, res) => {
   try {
     const foodId = req.params.id;
     const ngoId = req.user.userId;
 
     const food = await FoodPost.findById(foodId);
-    if (!food) {
-      return res.status(404).json({ success: false, message: "Food not found" });
+    if (!food || food.status !== "available") {
+      return res.status(400).json({ success: false, message: "Food not available" });
     }
 
-    if (food.status !== "available") {
-      return res.status(400).json({
-        success: false,
-        message: "Food is not available",
-      });
-    }
-
-    // prevent duplicate claim (your unique index helps)
+    // prevent duplicate claim
     const existing = await ClaimFood.findOne({ foodPostId: foodId, ngoId });
     if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "You already claimed this food",
-      });
+      return res.status(400).json({ success: false, message: "Already claimed" });
     }
 
     const claim = await ClaimFood.create({
@@ -318,23 +340,16 @@ export const claimFood = async (req, res) => {
       restaurantId: food.restaurantId,
     });
 
-    let io;
-    try { io = getIO(); } catch { }
+    const io = getIO();
 
-    if (io) {
-      // notify restaurant (new claim request)
-      io.to(`user:${food.restaurantId}`).emit("new_claim", {
-        claimId: claim._id,
-        foodId: food._id,
-        ngoId,
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Claim request sent",
-      claim,
+    // notify restaurant
+    io.to(`user:${food.restaurantId}`).emit("new_claim", {
+      claimId: claim._id,
+      foodId: food._id,
+      ngoId,
     });
+
+    res.json({ success: true, claim });
 
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -380,17 +395,23 @@ export const acceptClaim = async (req, res) => {
     try { io = getIO(); } catch { }
 
     if (io) {
-      // notify accepted NGO
       io.to(`user:${claim.ngoId}`).emit("claim_accepted", {
         foodId: claim.foodPostId,
+        restaurantLocation: {
+          lat: food.location.coordinates[1],
+          lng: food.location.coordinates[0],
+        },
+        restaurantId: claim.restaurantId,
       });
 
-      // notify others (optional but useful)
-      io.to("role:ngo").emit("food_unavailable", {
-        foodId: claim.foodPostId,
-      });
+      // other NGOs ONLY
+      const sockets = await io.in("role:ngo").fetchSockets();
 
-      io.to(`user:${claim.restaurantId}`).emit("stats_updated");
+      sockets.forEach((s) => {
+        if (s.user.userId !== claim.ngoId) {
+          s.emit("food_unavailable", { foodId: claim.foodPostId });
+        }
+      });
     }
 
     res.status(200).json({
@@ -467,10 +488,12 @@ export const markCollected = async (req, res) => {
         foodId: claim.foodPostId,
       });
 
-      io.to(`user:${claim.restaurantId}`).emit("stats_updated");
+      io.to(`user:${claim.ngoId}`).emit("food_collected", {
+        foodId: claim.foodPostId,
+      });
     }
 
-    res.json({ success: true, message: "Collected" });
+    res.json({ success: true, message: "Food collected successfully" });
 
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -486,30 +509,111 @@ export const getRestaurantClaims = async (req, res) => {
       restaurantId,
       status: "pending",
     })
-      .populate("foodPostId", "food_name quantity unit expiry_time")
-      .populate("ngoId", "name email contactInfo")
+      .populate("foodPostId", "food_name quantity unit description expiry_time food_image")
+      .populate("ngoId", "name address contactInfo")
       .sort({ createdAt: -1 });
 
-    // socket emit (optional but useful)
+    // REMOVE INVALID CLAIMS (food deleted)
+    const validClaims = claims.filter(c => c.foodPostId !== null);
+
+    // SOCKET (use correct count)
     let io;
     try { io = getIO(); } catch { }
 
     if (io) {
       io.to(`user:${restaurantId}`).emit("restaurant_claims_update", {
-        count: claims.length,
+        count: validClaims.length,
       });
     }
 
+    // RETURN VALID CLAIMS ONLY
     res.status(200).json({
       success: true,
-      count: claims.length,
-      data: claims,
+      count: validClaims.length,
+      data: validClaims,
     });
 
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+export const getMyClaims = async (req, res) => {
+  try {
+    const ngoId = req.user.userId;
+
+    const claims = await ClaimFood.find({
+      ngoId,
+      status: { $in: ["pending", "accepted", "rejected"] },
+    }).select("foodPostId");
+
+    const claimedFoodIds = claims.map(c => c.foodPostId.toString());
+
+    res.json({
+      success: true,
+      claimedFoodIds,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+export const getClaimById = async (req, res) => {
+  try {
+    const { claimId } = req.params;
+    const userId = req.user.userId; // from auth middleware
+
+    const claim = await ClaimFood.findById(claimId)
+      .populate({
+        path: "foodPostId",
+        select: "food_name quantity unit location",
+      })
+      .populate({
+        path: "restaurantId",
+        select: "name location address",
+      });
+
+    // not found
+    if (!claim) {
+      return res.status(404).json({
+        success: false,
+        message: "Claim not found",
+      });
+    }
+
+    // SECURITY (VERY IMPORTANT)
+    if (claim.ngoId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    // broken reference safety
+    if (!claim.restaurantId || !claim.foodPostId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid claim data",
+      });
+    }
+
+
+    res.status(200).json({
+      success: true,
+      data: claim,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
 };

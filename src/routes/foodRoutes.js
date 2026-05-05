@@ -11,7 +11,9 @@ import {
     rejectClaim,
     markCollected,
     getClaimedFoodsByNGO,
-    getRestaurantClaims
+    getRestaurantClaims,
+    getMyClaims,
+    getClaimById
 } from "../controllers/foodController.js";
 
 import { protect } from "../middlewares/authMiddleware.js";
@@ -60,6 +62,8 @@ router.get("/restaurant/:restaurantId", protect, getFoodPostsByRestaurant);
 
 // NGO claimed foods
 router.get("/ngo/claimed", protect, authorizeRoles("ngo"), getClaimedFoodsByNGO);
+router.get("/claims/my", protect, authorizeRoles("ngo"), getMyClaims);
+router.get("/claims/:claimId", protect, authorizeRoles("ngo"), getClaimById)
 
 // Claim food
 router.post("/claim/:id", protect, authorizeRoles("ngo"), claimFood);

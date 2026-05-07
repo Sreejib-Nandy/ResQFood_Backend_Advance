@@ -7,7 +7,7 @@ import { google } from "googleapis";
 
 // SignUp for new user - No Log in required
 export const googleAuth = async (req, res) => {
-    const code = req.query.code;
+    const code = req.body.code || req.query.code;;
 
     if (!code) {
         return res.status(400).json({ message: "Authorization code missing" });

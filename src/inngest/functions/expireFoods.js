@@ -12,7 +12,7 @@ export const expireFoods = inngest.createFunction(
 
     const expiredPosts = await FoodPost.find({
       expiry_time: { $lte: now },
-      status: { $in: ["available", "claimed"] },
+      status: { $in: ["available", "claimed", "accepted"] },
       expiredAt: { $exists: false }
     }).select("_id restaurantId claimedBy").lean();
 
@@ -26,6 +26,7 @@ export const expireFoods = inngest.createFunction(
       {
         status: "expired",
         expiredAt: now,
+        otp: null
       }
     );
 

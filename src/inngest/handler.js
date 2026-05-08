@@ -6,7 +6,6 @@ import { cleanupExpiredFoods } from "./functions/cleanupExpiredFoods.js";
 import { expireTrialUsers } from "./functions/trialExpiry.js";
 import { expireSubscriptions } from "./functions/subscriptionExpiry.js";
 import { expirePendingClaims } from "./functions/expirePendingClaims.js";
-import { expireUncollectedFood } from "./functions/expireUncollectedFood.js";
 
 export const inngestHandler = serve({
   client: inngest,
@@ -16,6 +15,5 @@ export const inngestHandler = serve({
     expireTrialUsers,
     expireSubscriptions,
     expirePendingClaims,
-    expireUncollectedFood
   ],
 });

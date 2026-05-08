@@ -9,7 +9,7 @@ import {
     claimFood,
     acceptClaim,
     rejectClaim,
-    markCollected,
+    verifyOtpAndCollect,
     getClaimedFoodsByNGO,
     getRestaurantClaims,
     getMyClaims,
@@ -71,7 +71,7 @@ router.post("/claim/:id", protect, authorizeRoles("ngo"), claimFood);
 // Accept / Reject / Collect
 router.post("/accept", protect, authorizeRoles("restaurant"), acceptClaim);
 router.post("/reject", protect, authorizeRoles("restaurant"), rejectClaim);
-router.post("/collect", protect, authorizeRoles("ngo"), markCollected);
+router.post("/verify-otp", protect, authorizeRoles("restaurant"), verifyOtpAndCollect);
 
 // Restaurant claims dashboard
 router.get("/claims", protect, authorizeRoles("restaurant"), getRestaurantClaims);

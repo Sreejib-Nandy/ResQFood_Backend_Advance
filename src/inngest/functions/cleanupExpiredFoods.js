@@ -8,10 +8,12 @@ export const cleanupExpiredFoods = inngest.createFunction(
   }, // every day at 3 AM
   async () => {
     const res = await FoodPost.deleteMany({
-      status: "expired",
+      status: { $in: ["expired", "collected"] },
       expiredAt: {
-        $lt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        $lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       },
+      collectedAt: {$lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      }
     });
 
     if (res.deletedCount > 0) {

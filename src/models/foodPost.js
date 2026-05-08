@@ -81,6 +81,17 @@ const foodPostSchema = new mongoose.Schema({
   collectedAt: Date,
   expiredAt: Date,
 
+  otp: {
+  code: {
+    type: String,
+    default: null
+  },
+  expiresAt: {
+    type: Date,
+    default: null
+  }
+}
+
 }, { timestamps: true });
 
 foodPostSchema.index({ location: "2dsphere" });

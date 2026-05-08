@@ -5,7 +5,7 @@ import axios from "axios";
 import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { foodClaimedOwnerTemplate, foodClaimedNgoTemplate, foodCollectedNgoTemplate, foodCollectedOwnerTemplate } from "../utils/emailTemplates.js";
+import { foodClaimedNgoTemplate, foodCollectedNgoTemplate } from "../utils/emailTemplates.js";
 
 // Create a new food post
 export const createFood = async (req, res) => {
@@ -293,7 +293,7 @@ export const getClaimedFoodsByNGO = async (req, res) => {
     })
       .populate({
         path: "foodPostId",
-        select: "food_name quantity unit description expiry_time food_image location",
+        select: "food_name quantity unit description expiry_time food_image location otp",
       })
       .populate({
         path: "restaurantId",
@@ -361,10 +361,22 @@ export const acceptClaim = async (req, res) => {
   try {
     const { claimId } = req.body;
 
-    const claim = await ClaimFood.findById(claimId);
+    const claim = await ClaimFood.findById(claimId)
+      .populate("ngoId", "email name")
+      .populate("restaurantId", "name");
+
     if (!claim || claim.status !== "pending") {
-      return res.status(400).json({ success: false, message: "Invalid claim" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid claim"
+      });
     }
+
+    const ngo = claim.ngoId;
+    const restaurant = claim.restaurantId;
+
+    // GENERATE OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
     // accept selected claim
     claim.status = "accepted";
@@ -385,18 +397,48 @@ export const acceptClaim = async (req, res) => {
 
     // update food
     const food = await FoodPost.findById(claim.foodPostId);
-    if (food) {
-      food.status = "accepted";
-      food.claimedBy = claim.ngoId;
-      await food.save();
+    if (!food) {
+      return res.status(404).json({
+        success: false,
+        message: "Food not found"
+      });
+    }
+
+    food.status = "accepted";
+    food.claimedBy = claim.ngoId;
+
+    // STORE OTP IN DB
+    food.otp = {
+      code: otp,
+      expiresAt: food.expiry_time
+    };
+
+    await food.save();
+
+    try {
+      if (ngo?.email) {
+        sendEmail({
+          to: ngo.email,
+          subject: "Food Pickup Assigned - ResQFood",
+          html: foodClaimedNgoTemplate({
+            food,
+            restaurant,
+            otp,
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Email sending failed:", error.message);
     }
 
     let io;
     try { io = getIO(); } catch { }
 
     if (io) {
+      // SEND TO ACCEPTED NGO (WITH OTP)
       io.to(`user:${claim.ngoId}`).emit("claim_accepted", {
         foodId: claim.foodPostId,
+        otp,
         restaurantLocation: {
           lat: food.location.coordinates[1],
           lng: food.location.coordinates[0],
@@ -404,7 +446,7 @@ export const acceptClaim = async (req, res) => {
         restaurantId: claim.restaurantId,
       });
 
-      // other NGOs ONLY
+      // REMOVE FOOD FOR OTHER NGOS
       const sockets = await io.in("role:ngo").fetchSockets();
 
       sockets.forEach((s) => {
@@ -416,7 +458,7 @@ export const acceptClaim = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Claim accepted",
+      message: "Claim accepted & OTP generated",
       destination: {
         lat: food.location.coordinates[1],
         lng: food.location.coordinates[0],
@@ -425,7 +467,10 @@ export const acceptClaim = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
 
@@ -463,43 +508,128 @@ export const rejectClaim = async (req, res) => {
 };
 
 
-export const markCollected = async (req, res) => {
+export const verifyOtpAndCollect = async (req, res) => {
   try {
-    const { claimId } = req.body;
+    const { foodId, otp } = req.body;
+    const userId = req.user.userId;
 
-    const claim = await ClaimFood.findById(claimId);
-    if (!claim || claim.status !== "accepted") {
-      return res.status(400).json({ success: false, message: "Invalid claim" });
+    const food = await FoodPost.findById(foodId);
+    if (!food) {
+      return res.status(404).json({ success: false, message: "Food not found" });
     }
 
-    claim.status = "collected";
-    await claim.save();
+    // Authorization
+    const isRestaurant = food.restaurantId.toString() === userId.toString();
 
-    await FoodPost.findByIdAndUpdate(claim.foodPostId, {
-      status: "collected",
-      collectedAt: new Date(),
-    });
+    if (!isRestaurant) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
 
+    if (food.status !== "accepted") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid state"
+      });
+    }
+
+    const now = new Date();
+
+    // Expiry check
+    if (now > new Date(food.expiry_time)) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Food expired"
+      });
+    }
+
+    // OTP existence
+    if (!food.otp || !food.otp.code) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not generated"
+      });
+    }
+
+    // OTP match
+    if (food.otp.code !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect OTP. Please confirm with NGO"
+      });
+    }
+
+    // UPDATE FOOD
+    food.status = "collected";
+    food.collectedAt = now;
+    food.otp = null;
+    await food.save();
+
+    // UPDATE CLAIM
+    await ClaimFood.findOneAndUpdate(
+      {
+        foodPostId: foodId,
+        ngoId: food.claimedBy,
+        status: "accepted"
+      },
+      {
+        status: "collected"
+      }
+    );
+
+    const claim = await ClaimFood.findOne({
+      foodPostId: foodId,
+      ngoId: food.claimedBy,
+    }).populate("ngoId", "email name")
+      .populate("restaurantId", "name");
+
+    const ngo = claim?.ngoId;
+    const restaurant = claim?.restaurantId;
+
+    try {
+      if (ngo?.email) {
+        sendEmail({
+          to: ngo.email,
+          subject: "🌟 Food collected successfully",
+          html: foodCollectedNgoTemplate({
+            food,
+            restaurant,
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Email sending failed:", error.message);
+    }
+
+    // SOCKETS
     let io;
     try { io = getIO(); } catch { }
 
     if (io) {
-      io.to(`user:${claim.restaurantId}`).emit("food_collected", {
-        foodId: claim.foodPostId,
+      io.to(`user:${food.restaurantId}`).emit("food_collected", {
+        foodId: food._id
       });
 
-      io.to(`user:${claim.ngoId}`).emit("food_collected", {
-        foodId: claim.foodPostId,
+      io.to(`user:${food.claimedBy}`).emit("food_collected", {
+        foodId: food._id
       });
     }
 
-    res.json({ success: true, message: "Food collected successfully" });
+    res.json({
+      success: true,
+      message: "Food collected successfully"
+    });
 
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 };
-
 
 export const getRestaurantClaims = async (req, res) => {
   try {
@@ -507,9 +637,9 @@ export const getRestaurantClaims = async (req, res) => {
 
     const claims = await ClaimFood.find({
       restaurantId,
-      status: "pending",
+      status: { $in: ["pending", "accepted", "collected", "expired"] },
     })
-      .populate("foodPostId", "food_name quantity unit description expiry_time food_image")
+      .populate("foodPostId", "food_name quantity unit description expiry_time food_image otp")
       .populate("ngoId", "name address contactInfo")
       .sort({ createdAt: -1 });
 

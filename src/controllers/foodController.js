@@ -417,7 +417,7 @@ export const acceptClaim = async (req, res) => {
 
     try {
       if (ngo?.email) {
-        sendEmail({
+        await sendEmail({
           to: ngo.email,
           subject: "Food Pickup Assigned - ResQFood",
           html: foodClaimedNgoTemplate({
@@ -591,7 +591,8 @@ export const verifyOtpAndCollect = async (req, res) => {
 
     try {
       if (ngo?.email) {
-        sendEmail({
+        console.log("Email Sent!");
+        await sendEmail({
           to: ngo.email,
           subject: "🌟 Food collected successfully",
           html: foodCollectedNgoTemplate({

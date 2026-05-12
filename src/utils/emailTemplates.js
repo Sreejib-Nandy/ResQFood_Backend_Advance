@@ -1,107 +1,266 @@
-// export const foodClaimedOwnerTemplate = ({ food, ngo, restaurant }) => {
-//   return `
-//   <div style="font-family: Arial, sans-serif; background:#f6f9fc; padding:40px 20px;">
-//     <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;">
-      
-//       <!-- Logo Header -->
-//       <div style="padding:20px 30px;border-bottom:1px solid #e5e7eb;text-align:center;">
-//         <img src="https://resqfood-codecaptcha.vercel.app/logo.png" alt="ResQFood" style="height:40px;" />
-//       </div>
+export const welcomeUserTemplate = ({ user }) => {
+  const isRestaurant = user.role === "restaurant";
+  const isNgo = user.role === "ngo";
 
-//       <div style="padding:30px;">
-//         <h2 style="margin:0 0 10px 0;color:#111827;">Food Claimed</h2>
-//         <p style="color:#6b7280;font-size:14px;margin-bottom:20px;">
-//           Your donation has been claimed by an NGO.
-//         </p>
+  const roleBadge = isRestaurant
+    ? { icon: "🍽️", label: "Restaurant Partner" }
+    : { icon: "🤝", label: "NGO Partner" }
 
-//         <p>Hello <strong>${restaurant.name}</strong>,</p>
+  const trialBox =
+    isRestaurant && user.status === "trial"
+      ? `
+      <div style="background: linear-gradient(135deg, #fffbea 0%, #fff8d6 100%); border-left: 4px solid #f0b429; border-radius: 0 12px 12px 0; padding: 18px 22px; margin: 28px 0;">
+        <p style="font-size: 13px; font-weight: 600; color: #92660a; margin: 0 0 6px; display: flex; align-items: center; gap: 7px;">
+          ⭐ Your 90-day free trial has started
+        </p>
+        <p style="font-size: 14px; color: #6b5100; line-height: 1.6; margin: 0;">
+          Enjoy full access to all features for the next <strong>90 days</strong> —
+          no credit card needed. Post donations, track pickups, and connect with NGOs near you, completely free.
+        </p>
+      </div>
+    `
+    : "";
 
-//         <p style="line-height:1.6;">
-//           <strong>${ngo.name}</strong> has claimed your food donation. Please keep it ready for pickup.
-//         </p>
+  return `
+<div style="font-family: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f0e8; padding: 40px 16px; min-height: 100vh;">
+      <div style="max-width: 600px; margin: 0 auto;">
 
-//         <!-- Food Image -->
-//         <div style="margin:20px 0;">
-//           <img src="${food.food_image?.[0]?.url}" style="width:100%;border-radius:8px;object-fit:cover;max-height:250px;" />
-//         </div>
+        <!-- Hero -->
+        <div style="background: linear-gradient(145deg, #2d4a22 0%, #3e6b2f 45%, #5c8c42 100%); border-radius: 24px 24px 0 0; padding: 52px 48px 44px; text-align: center; position: relative; overflow: hidden;">
+          
+          <!-- Logo -->
+          <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 32px;">
+            <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.15); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px;">
+              🌿
+            </div>
+            <span style="font-family: Georgia, 'Times New Roman', serif; color: #ffffff; font-size: 22px; font-weight: 600; letter-spacing: 0.3px;">
+              ResQFood
+            </span>
+          </div>
 
-//         <!-- Details -->
-//         <div style="background:#f9fafb;padding:15px;border-radius:8px;border:1px solid #e5e7eb;">
-//           <p><strong>Food:</strong> ${food.food_name}</p>
-//           <p><strong>Quantity:</strong> ${food.quantity}</p>
-//           <p><strong>Pickup Before:</strong> ${new Date(food.expiry_time).toLocaleString()}</p>
-//         </div>
+          <p style="font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: #a8d88a; margin: 0 0 14px;">
+            Welcome aboard
+          </p>
+          <h1 style="font-family: Georgia, 'Times New Roman', serif; font-size: 36px; line-height: 1.2; color: #ffffff; margin: 0 0 16px;">
+            Every meal shared<br/>is a life <em style="font-style: italic; color: #c8f09a;">touched.</em>
+          </h1>
+          <p style="font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.6; max-width: 360px; margin: 0 auto;">
+            You've just joined a community turning surplus into sustenance — one donation at a time.
+          </p>
+        </div>
 
-//         <!-- CTA -->
-//         <div style="text-align:center;margin-top:25px;">
-//           <a href="https://www.google.com/maps?q=${food.location.coordinates[1]},${food.location.coordinates[0]}"
-//           style="background:#16a34a;color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none;">
-//           View Pickup Location
-//           </a>
-//         </div>
-//       </div>
+        <!-- Amber strip -->
+        <div style="background: #f0b429; height: 5px;"></div>
 
-//       <!-- Footer -->
-//       <div style="padding:20px;text-align:center;border-top:1px solid #e5e7eb;font-size:13px;color:#6b7280;">
-//         <a href="https://resqfood-codecaptcha.vercel.app" style="color:#16a34a;text-decoration:none;">
-//           www.resqfood.com
-//         </a><br/>
-//         ResQFood • Reducing food waste efficiently
-//       </div>
+        <!-- Body Card -->
+        <div style="background: #fffef9; padding: 48px 48px 40px;">
 
-//     </div>
-//   </div>
-//   `;
-// };
+          <h2 style="font-family: Georgia, 'Times New Roman', serif; font-size: 24px; color: #1f2e13; margin: 0 0 18px;">
+            Hello, ${user.name}! 👋
+          </h2>
 
+          <p style="font-size: 15px; color: #4a5240; line-height: 1.75; margin: 0 0 16px;">
+            We're so glad you're here. Whether you're sharing a meal or receiving one,
+            you're now part of something meaningful — a network built on the simple belief
+            that good food shouldn't go to waste.
+          </p>
+
+          <p style="font-size: 15px; color: #4a5240; line-height: 1.75; margin: 0 0 16px;">
+            Your account is set up and ready to go. Here's a quick look at what you've joined:
+          </p>
+
+          <!-- Role Badge -->
+          <div style="margin: 32px 0; display: flex; align-items: center; gap: 16px; background: #f4f9f0; border: 1.5px solid #c6e0b0; border-radius: 16px; padding: 20px 24px;">
+            <span style="font-size: 32px; flex-shrink: 0;">${roleBadge.icon}</span>
+            <div>
+              <p style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7aaa55; font-weight: 500; margin: 0 0 4px;">Your role</p>
+              <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #2d4a22; margin: 0;">${roleBadge.label}</p>
+            </div>
+          </div>
+
+          ${trialBox}
+
+          <!-- Steps -->
+          <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 18px; color: #1f2e13; margin: 0 0 20px;">
+            Here's how to get started
+          </p>
+
+          <!-- Step 2 -->
+          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
+            <div style="width: 32px; height: 32px; background: #2d4a22; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 1px; text-align: center; line-height: 32px;">
+              1
+            </div>
+            <div>
+              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">${isRestaurant ? "Post your first donation" : "Browse available donations"}</strong>
+              <span style="font-size: 13px; color: #6b7460; line-height: 1.5;">${isRestaurant ? "Have surplus food? List it in seconds — nearby NGOs will be notified instantly." : "See what's available near you and claim a pickup in just a few taps."}</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
+            <div style="width: 32px; height: 32px; background: #2d4a22; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 1px; text-align: center; line-height: 32px;">
+              2
+            </div>
+            <div>
+              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">Track & celebrate your impact</strong>
+              <span style="font-size: 13px; color: #6b7460; line-height: 1.5;">Follow every donation from listing to pickup and see the difference you're making.</span>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div style="text-align: center; margin: 36px 0 28px;">
+            <a href="https://resqfood-sreejib.vercel.app"
+              style="display: inline-block; background: linear-gradient(135deg, #2d4a22, #4a7a32); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; letter-spacing: 0.3px; padding: 16px 40px; border-radius: 50px; box-shadow: 0 8px 24px rgba(45,74,34,0.3);">
+              Go to Site →
+            </a>
+            <p style="font-size: 12px; color: #9aab88; margin: 12px 0 0;">Takes less than 2 minutes to set up your first listing</p>
+          </div>
+
+          <!-- Quote -->
+          <div style="border-top: 1px solid #e8ede0; padding-top: 28px; margin-top: 28px; text-align: center;">
+            <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 17px; font-style: italic; color: #3e6b2f; line-height: 1.6; margin: 0 0 8px;">
+              "The world has enough for everyone's need,<br/>but not enough for everyone's greed."
+            </p>
+            <p style="font-size: 12px; color: #9aab88; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">— Mahatma Gandhi</p>
+          </div>
+
+        </div>
+
+        <!-- Dot row -->
+        <div style="text-align: center; padding: 8px 0; background: #fffef9;">
+          <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #c6e0b0; margin: 0 3px;"></span>
+          <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #f0b429; margin: 0 3px;"></span>
+          <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #c6e0b0; margin: 0 3px;"></span>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #2d4a22; border-radius: 0 0 24px 24px; padding: 32px 48px; text-align: center;">
+          <p style="font-family: Georgia, 'Times New Roman', serif; color: rgba(255,255,255,0.6); font-size: 13px; margin: 0 0 12px;">ResQFood</p>
+          <div style="margin-bottom: 16px;">
+            <a href="https://resqfood-sreejib.vercel.app" style="color: #a8d88a; text-decoration: none; font-size: 13px; margin: 0 12px;">Help Center</a>
+            <span style="color: rgba(255,255,255,0.2);">·</span>
+            <a href="https://resqfood-sreejib.vercel.app" style="color: #a8d88a; text-decoration: none; font-size: 13px; margin: 0 12px;">Privacy Policy</a>
+            <span style="color: rgba(255,255,255,0.2);">·</span>
+            <a href="https://resqfood-sreejib.vercel.app" style="color: #a8d88a; text-decoration: none; font-size: 13px; margin: 0 12px;">Subscribe</a>
+          </div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.7; margin: 0;">
+            You're receiving this because you signed up at ResQFood.<br/>
+            Making food redistribution efficient &amp; impactful.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  `;
+};
 
 
 
 export const foodClaimedNgoTemplate = ({ food, restaurant, otp }) => {
   return `
-  <div style="font-family: Arial, sans-serif; background:#f6f9fc; padding:40px 20px;">
-    <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;">
-      
-      <div style="padding:20px;text-align:center;border-bottom:1px solid #e5e7eb;">
-        <img src="https://www.shutterstock.com/image-vector/illustration-icon-food-sharing-donation-600nw-2229819277.jpg" style="height:40px;" />
+    <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f0; padding: 48px 20px; min-height: 100vh;">
+    <div style="max-width: 580px; margin: auto;">
+ 
+      <!-- Header Logo Bar -->
+      <div style="margin-bottom: 28px; display: flex; justify-content: center; align-items: center;">
+        <img src="https://www.shutterstock.com/image-vector/illustration-icon-food-sharing-donation-600nw-2229819277.jpg"
+          style="height: 36px; opacity: 0.9;" />
+          <p style="color: #000000; font-size: 26px; font-weight: 700; margin: 0 0 6px 6px; letter-spacing: -0.3px;">Res<span style="color: green;">Q</span>Food</p>
       </div>
-
-      <div style="padding:30px;">
-        <h2 style="color:#111827;margin-bottom:10px;">Pickup Assigned</h2>
-
-        <p>A food donation is ready for collection.</p>
-
-        <img src="${food.food_image?.[0]?.url}" 
-        style="width:100%;border-radius:8px;margin:20px 0;max-height:250px;object-fit:cover;" />
-
-        <div style="background:#f9fafb;padding:15px;border-radius:8px;border:1px solid #e5e7eb;">
-          <p><strong>Food:</strong> ${food.food_name}</p>
-          <p><strong>Quantity:</strong> ${food.quantity}</p>
-          <p><strong>Donor:</strong> ${restaurant.name}</p>
-          <p><strong>Collect Before:</strong> ${new Date(food.expiry_time).toLocaleString()}</p>
-        </div>
-
-        <!-- OTP BLOCK -->
-        <div style="margin-top:20px;padding:15px;border-radius:8px;border:1px dashed #16a34a;text-align:center;">
-          <p style="margin-bottom:5px;">Show this OTP at the restaurant</p>
-          <div style="font-size:26px;font-weight:bold;letter-spacing:6px;color:#16a34a;">
-            ${otp}
+ 
+      <!-- Main Card -->
+      <div style="background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+ 
+        <!-- Hero Banner -->
+        <div style="background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #22c55e 100%); padding: 32px 32px 0 32px; position: relative;">
+          <div style="display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 5px 14px; margin-bottom: 14px;">
+            <span style="color: #d1fae5; font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;">New Assignment</span>
+          </div>
+          <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.3px;">Pickup Assigned</h1>
+          <p style="color: #bbf7d0; font-size: 14px; margin: 0 0 24px;">A food donation is ready for collection. Act before it expires.</p>
+ 
+          <!-- Food Image clipped into banner -->
+          <div style="border-radius: 12px 12px 0 0; overflow: hidden; margin: 0 -0px; height: 200px;">
+            <img src="${food.food_image?.[0]?.url}"
+              style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
         </div>
-
-        <div style="text-align:center;margin-top:25px;">
-          <a href="https://resqfood-sreejib.vercel.app/ngo/dashboard"
-          style="background:#16a34a;color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none;">
-          Navigate to Location
-          </a>
+ 
+        <!-- Body Content -->
+        <div style="padding: 28px 32px;">
+ 
+          <!-- Food Details Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+ 
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #6b7280; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Food Item</p>
+              <p style="color: #111827; font-size: 15px; font-weight: 600; margin: 0;">${food.food_name}</p>
+            </div>
+ 
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #6b7280; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Quantity</p>
+              <p style="color: #111827; font-size: 15px; font-weight: 600; margin: 0;">${food.quantity}</p>
+            </div>
+ 
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #6b7280; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Donor</p>
+              <p style="color: #111827; font-size: 15px; font-weight: 600; margin: 0;">${restaurant.name}</p>
+            </div>
+ 
+            <div style="background: #fef9f0; border: 1px solid #fde68a; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #92400e; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Collect Before</p>
+              <p style="color: #78350f; font-size: 14px; font-weight: 600; margin: 0;">${new Date(food.expiry_time).toLocaleString()}</p>
+            </div>
+          </div>
+ 
+          <!-- Divider -->
+          <div style="border-top: 1px dashed #d1d5db; margin: 4px 0 24px;"></div>
+ 
+          <!-- OTP Block -->
+          <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 16px; padding: 22px 24px; text-align: center; margin-bottom: 24px;">
+            <p style="color: #166534; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 12px;">
+              &#128274; Show this OTP at the restaurant
+            </p>
+            <div style="display: inline-flex; gap: 10px; align-items: center; justify-content: center;">
+              ${String(otp).split('').map(digit => `
+                <div style="width: 44px; height: 52px; background: #ffffff; border: 1.5px solid #4ade80; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                  <span style="font-size: 24px; font-weight: 800; color: #15803d; letter-spacing: 0; line-height: 1; display: block; text-align: center;">${digit}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+ 
+          <!-- CTA Button -->
+          <div style="text-align: center;">
+            <a href="https://resqfood-sreejib.vercel.app/ngo/dashboard"
+              style="display: inline-block; background: #16a34a; color: #ffffff; font-size: 15px; font-weight: 600; padding: 14px 36px; border-radius: 50px; text-decoration: none; letter-spacing: 0.3px; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);">
+              &#128205; Navigate to Location
+            </a>
+          </div>
+ 
         </div>
       </div>
+ 
+      <!-- Footer -->
+      <div style="text-align: center; margin-top: 28px; padding-bottom: 8px;">
+        <a href="https://resqfood-sreejib.vercel.app"
+          style="color: #16a34a; font-size: 15px; font-weight: 700; text-decoration: none; letter-spacing: -0.2px;">
+          ResQFood
+        </a>
+        <p style="color: #9ca3af; font-size: 12px; margin: 6px 0 0;">Efficient food redistribution &bull; Making every meal count</p>
+      </div>
+ 
+    </div>
+  </div>
 
-      <div style="padding:20px;text-align:center;border-top:1px solid #e5e7eb;font-size:13px;color:#6b7280;">
-        <a href="https://resqfood-sreejib.vercel.app" style="color:#16a34a;text-decoration:none;">
+      <!-- FOOTER -->
+      <div style="padding:18px;text-align:center;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;">
+        <p style="margin:0;">
+          <a href="https://resqfood-sreejib.vercel.app" style="color:#16a34a;text-decoration:none;font-weight:500;">
             ResQFood
-        </a><br/>
-        • Efficient food redistribution
+          </a>
+        </p>
+        <p style="margin:4px 0 0;">Making food redistribution efficient & impactful</p>
       </div>
 
     </div>
@@ -113,106 +272,86 @@ export const foodClaimedNgoTemplate = ({ food, restaurant, otp }) => {
 
 export const foodCollectedNgoTemplate = ({ food, restaurant }) => {
   return `
-  <div style="font-family: Arial, sans-serif; background:#f6f9fc; padding:40px 20px;">
-    <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;">
-      
-      <!-- Header -->
-      <div style="padding:20px;text-align:center;border-bottom:1px solid #e5e7eb;">
-        <img src="https://www.shutterstock.com/image-vector/illustration-icon-food-sharing-donation-600nw-2229819277.jpg" alt="ResQFood" style="height:40px;" />
+  <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f0; padding: 48px 20px; min-height: 100vh;">
+    <div style="max-width: 580px; margin: auto;">
+ 
+      <!-- Logo -->
+<div style="margin-bottom: 28px; display: flex; justify-content: center; align-items: center;">
+        <img src="https://www.shutterstock.com/image-vector/illustration-icon-food-sharing-donation-600nw-2229819277.jpg"
+          style="height: 36px; opacity: 0.9;" />
+          <p style="color: #000000; font-size: 26px; font-weight: 700; margin: 0 0 6px 6px; letter-spacing: -0.3px;">Res<span style="color: green;">Q</span>Food</p>
       </div>
-
-      <!-- Body -->
-      <div style="padding:30px;">
-        <h2 style="margin:0 0 10px 0;color:#111827;">Collection Confirmed</h2>
-        <p style="color:#6b7280;font-size:14px;margin-bottom:20px;">
-          The pickup has been successfully completed.
-        </p>
-
-        <p style="font-size:15px;color:#374151;">
-          Thank you for collecting food from <strong>${restaurant.name}</strong>.
-        </p>
-
-        <!-- Food Image -->
-        <div style="margin:20px 0;">
-          <img src="${food.food_image?.[0]?.url}" 
-          style="width:100%;border-radius:8px;object-fit:cover;max-height:250px;" />
+ 
+      <!-- Main Card -->
+      <div style="background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+ 
+        <!-- Hero Banner -->
+        <div style="background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #22c55e 100%); padding: 32px 32px 0 32px;">
+          
+          <!-- Success Badge -->
+          <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 5px 14px; margin-bottom: 14px;">
+            <span style="color: #d1fae5; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;">&#10003; Completed</span>
+          </div>
+ 
+          <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.3px;">Collection Confirmed</h1>
+          <p style="color: #bbf7d0; font-size: 14px; margin: 0 0 24px;">The pickup has been successfully completed.</p>
+ 
+          <!-- Food Image clipped into banner -->
+          <div style="border-radius: 12px 12px 0 0; overflow: hidden; height: 200px;">
+            <img src="${food.food_image?.[0]?.url}"
+              style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+          </div>
         </div>
-
-        <!-- Details -->
-        <div style="background:#f9fafb;padding:15px;border-radius:8px;border:1px solid #e5e7eb;">
-          <p><strong>Food Item:</strong> ${food.food_name}</p>
-          <p><strong>Quantity:</strong> ${food.quantity}</p>
+ 
+        <!-- Body -->
+        <div style="padding: 28px 32px;">
+ 
+          <!-- Thank you message -->
+          <p style="font-size: 15px; color: #374151; margin: 0 0 20px; line-height: 1.6;">
+            Thank you for collecting food from <strong style="color: #111827;">${restaurant.name}</strong>. Your action helped ensure that surplus food was redistributed efficiently and responsibly.
+          </p>
+ 
+          <!-- Divider -->
+          <div style="border-top: 1px dashed #d1d5db; margin: 4px 0 20px;"></div>
+ 
+          <!-- Details Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #6b7280; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Food Item</p>
+              <p style="color: #111827; font-size: 15px; font-weight: 700; margin: 0;">${food.food_name}</p>
+            </div>
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px 16px;">
+              <p style="color: #6b7280; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 4px;">Quantity</p>
+              <p style="color: #111827; font-size: 15px; font-weight: 700; margin: 0;">${food.quantity}</p>
+            </div>
+          </div>
+ 
+          <!-- Impact Block -->
+          <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 16px; padding: 20px 22px; display: flex; align-items: flex-start; gap: 14px;">
+            <div style="background: #16a34a; border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+              <span style="color: #fff; font-size: 18px; line-height: 1;">&#127807;</span>
+            </div>
+            <div>
+              <p style="color: #14532d; font-size: 13px; font-weight: 700; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.8px;">Impact Made</p>
+              <p style="color: #166534; font-size: 14px; margin: 0; line-height: 1.5;">
+                Every collection counts. You've helped redirect good food to people who need it most.
+              </p>
+            </div>
+          </div>
+ 
         </div>
-
-        <!-- Impact -->
-        <p style="margin-top:20px;font-size:14px;color:#6b7280;line-height:1.6;">
-          Your action helped ensure that surplus food was redistributed efficiently and responsibly.
-        </p>
       </div>
-
+ 
       <!-- Footer -->
-      <div style="padding:20px;text-align:center;border-top:1px solid #e5e7eb;font-size:13px;color:#6b7280;">
-        <a href="https://resqfood-sreejib.vercel.app" style="color:#16a34a;text-decoration:none;">
+      <div style="text-align: center; margin-top: 28px; padding-bottom: 8px;">
+        <a href="https://resqfood-sreejib.vercel.app"
+          style="color: #16a34a; font-size: 15px; font-weight: 700; text-decoration: none; letter-spacing: -0.2px;">
           ResQFood
-        </a><br/>
-        • Thank you for your contribution
+        </a>
+        <p style="color: #9ca3af; font-size: 12px; margin: 6px 0 0;">Thank you for your contribution &bull; Making every meal count</p>
       </div>
-
+ 
     </div>
   </div>
   `;
 };
-
-
-
-// export const foodCollectedOwnerTemplate = ({ food, ngo }) => {
-//   return `
-//   <div style="font-family: Arial, sans-serif; background:#f6f9fc; padding:40px 20px;">
-//     <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:10px;border:1px solid #e5e7eb;overflow:hidden;">
-      
-//       <!-- Header -->
-//       <div style="padding:20px;text-align:center;border-bottom:1px solid #e5e7eb;">
-//         <img src="https://resqfood-codecaptcha.vercel.app/logo.png" alt="ResQFood" style="height:40px;" />
-//       </div>
-
-//       <!-- Body -->
-//       <div style="padding:30px;">
-//         <h2 style="margin:0 0 10px 0;color:#111827;">Donation Completed</h2>
-//         <p style="color:#6b7280;font-size:14px;margin-bottom:20px;">
-//           Your food donation has been successfully collected.
-//         </p>
-
-//         <p style="font-size:15px;color:#374151;">
-//           <strong>${ngo.name}</strong> has collected your donation.
-//         </p>
-
-//         <!-- Food Image -->
-//         <div style="margin:20px 0;">
-//           <img src="${food.food_image?.[0]?.url}" 
-//           style="width:100%;border-radius:8px;object-fit:cover;max-height:250px;" />
-//         </div>
-
-//         <!-- Details -->
-//         <div style="background:#f9fafb;padding:15px;border-radius:8px;border:1px solid #e5e7eb;">
-//           <p><strong>Food Item:</strong> ${food.food_name}</p>
-//           <p><strong>Collected By:</strong> ${ngo.name}</p>
-//         </div>
-
-//         <!-- Impact -->
-//         <p style="margin-top:20px;font-size:14px;color:#6b7280;line-height:1.6;">
-//           Thank you for helping reduce food waste and supporting your community through ResQFood.
-//         </p>
-//       </div>
-
-//       <!-- Footer -->
-//       <div style="padding:20px;text-align:center;border-top:1px solid #e5e7eb;font-size:13px;color:#6b7280;">
-//         <a href="https://resqfood-codecaptcha.vercel.app" style="color:#16a34a;text-decoration:none;">
-//           www.resqfood.com
-//         </a><br/>
-//         ResQFood • Saving food, serving communities
-//       </div>
-
-//     </div>
-//   </div>
-//   `;
-// };

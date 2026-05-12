@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import axios from "axios";
 import { google } from "googleapis";
+import { sendEmail } from "../utils/sendEmail.js";
+import { welcomeUserTemplate } from "../utils/emailTemplates.js";
 
 // SignUp for new user - No Log in required
 export const googleAuth = async (req, res) => {
@@ -208,6 +210,18 @@ export const completeProfile = async (req, res) => {
         }
 
         await user.save();
+
+        try {
+              if (user?.email) {
+                await sendEmail({
+                  to: user.email,
+                  subject: "Welcome to ResQFood 🌱 Let’s Make an Impact Together",
+                  html: welcomeUserTemplate({user}),
+                });
+              }
+            } catch (error) {
+              console.error("Email sending failed:", error.message);
+            }
 
         res.status(200).json({
             success: true,

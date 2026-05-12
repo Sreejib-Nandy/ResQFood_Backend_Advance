@@ -3,8 +3,8 @@ export const welcomeUserTemplate = ({ user }) => {
   const isNgo = user.role === "ngo";
 
   const roleBadge = isRestaurant
-    ? { icon: "🍽️", label: "Restaurant Partner" }
-    : { icon: "🤝", label: "NGO Partner" }
+    ? { icon: "🍽️ ", label: "Restaurant Partner" }
+    : { icon: "🤝 ", label: "NGO Partner" }
 
   const trialBox =
     isRestaurant && user.status === "trial"
@@ -19,7 +19,7 @@ export const welcomeUserTemplate = ({ user }) => {
         </p>
       </div>
     `
-    : "";
+      : "";
 
   return `
 <div style="font-family: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f0e8; padding: 40px 16px; min-height: 100vh;">
@@ -30,11 +30,8 @@ export const welcomeUserTemplate = ({ user }) => {
           
           <!-- Logo -->
           <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 32px;">
-            <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.15); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px;">
-              🌿
-            </div>
             <span style="font-family: Georgia, 'Times New Roman', serif; color: #ffffff; font-size: 22px; font-weight: 600; letter-spacing: 0.3px;">
-              ResQFood
+              🌿 Res<span style="color: #ccff33;">Q</span>Food
             </span>
           </div>
 
@@ -71,7 +68,7 @@ export const welcomeUserTemplate = ({ user }) => {
 
           <!-- Role Badge -->
           <div style="margin: 32px 0; display: flex; align-items: center; gap: 16px; background: #f4f9f0; border: 1.5px solid #c6e0b0; border-radius: 16px; padding: 20px 24px;">
-            <span style="font-size: 32px; flex-shrink: 0;">${roleBadge.icon}</span>
+            <span style="font-size: 32px; flex-shrink: 0; margin-right: 4px;">${roleBadge.icon}</span>
             <div>
               <p style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7aaa55; font-weight: 500; margin: 0 0 4px;">Your role</p>
               <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; color: #2d4a22; margin: 0;">${roleBadge.label}</p>
@@ -85,24 +82,18 @@ export const welcomeUserTemplate = ({ user }) => {
             Here's how to get started
           </p>
 
-          <!-- Step 2 -->
-          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
-            <div style="width: 32px; height: 32px; background: #2d4a22; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 1px; text-align: center; line-height: 32px;">
-              1
-            </div>
+          <!-- Step 1 -->
+          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: center;">
             <div>
-              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">${isRestaurant ? "Post your first donation" : "Browse available donations"}</strong>
+              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">${isRestaurant ? "1️⃣ Post your first donation" : "1️⃣ Browse available donations"}</strong>
               <span style="font-size: 13px; color: #6b7460; line-height: 1.5;">${isRestaurant ? "Have surplus food? List it in seconds — nearby NGOs will be notified instantly." : "See what's available near you and claim a pickup in just a few taps."}</span>
             </div>
           </div>
 
-          <!-- Step 3 -->
-          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
-            <div style="width: 32px; height: 32px; background: #2d4a22; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 1px; text-align: center; line-height: 32px;">
-              2
-            </div>
+          <!-- Step 2 -->
+          <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: center;">
             <div>
-              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">Track & celebrate your impact</strong>
+              <strong style="font-size: 14px; font-weight: 500; color: #1f2e13; display: block; margin-bottom: 3px;">2️⃣ Track & celebrate your impact</strong>
               <span style="font-size: 13px; color: #6b7460; line-height: 1.5;">Follow every donation from listing to pickup and see the difference you're making.</span>
             </div>
           </div>
@@ -180,7 +171,7 @@ export const foodClaimedNgoTemplate = ({ food, restaurant, otp }) => {
           <p style="color: #bbf7d0; font-size: 14px; margin: 0 0 24px;">A food donation is ready for collection. Act before it expires.</p>
  
           <!-- Food Image clipped into banner -->
-          <div style="border-radius: 12px 12px 0 0; overflow: hidden; margin: 0 -0px; height: 200px;">
+          <div style="border-radius: 12px 12px 0 0; overflow: hidden; margin: 0 -0px; height: 300px;">
             <img src="${food.food_image?.[0]?.url}"
               style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
@@ -217,18 +208,46 @@ export const foodClaimedNgoTemplate = ({ food, restaurant, otp }) => {
           <div style="border-top: 1px dashed #d1d5db; margin: 4px 0 24px;"></div>
  
           <!-- OTP Block -->
-          <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 16px; padding: 22px 24px; text-align: center; margin-bottom: 24px;">
-            <p style="color: #166534; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 12px;">
-              &#128274; Show this OTP at the restaurant
-            </p>
-            <div style="display: inline-flex; gap: 10px; align-items: center; justify-content: center;">
-              ${String(otp).split('').map(digit => `
-                <div style="width: 44px; height: 52px; background: #ffffff; border: 1.5px solid #4ade80; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                  <span style="font-size: 24px; font-weight: 800; color: #15803d; letter-spacing: 0; line-height: 1; display: block; text-align: center;">${digit}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
+          <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 16px; padding: 18px 12px; text-align: center; margin-bottom: 24px;">
+  
+  <p style="color: #166534; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 12px;">
+    &#128274; Show this OTP at the restaurant
+  </p>
+
+  <!-- OTP TABLE (responsive) -->
+  <table align="center" cellpadding="0" cellspacing="0" style="margin:auto;">
+    <tr>
+      ${String(otp).split('').map(digit => `
+        <td style="padding:4px;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="
+                width:42px;
+                height:50px;
+                background:#ffffff;
+                border:1.5px solid #4ade80;
+                border-radius:10px;
+                text-align:center;
+                vertical-align:middle;
+              ">
+                <span style="
+                  font-size:22px;
+                  font-weight:800;
+                  color:#15803d;
+                  line-height:50px;
+                  display:block;
+                ">
+                  ${digit}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      `).join('')}
+    </tr>
+  </table>
+
+</div>
  
           <!-- CTA Button -->
           <div style="text-align: center;">
@@ -297,7 +316,7 @@ export const foodCollectedNgoTemplate = ({ food, restaurant }) => {
           <p style="color: #bbf7d0; font-size: 14px; margin: 0 0 24px;">The pickup has been successfully completed.</p>
  
           <!-- Food Image clipped into banner -->
-          <div style="border-radius: 12px 12px 0 0; overflow: hidden; height: 200px;">
+          <div style="border-radius: 12px 12px 0 0; overflow: hidden; height: 300px;">
             <img src="${food.food_image?.[0]?.url}"
               style="width: 100%; height: 100%; object-fit: cover; display: block;" />
           </div>
@@ -328,11 +347,8 @@ export const foodCollectedNgoTemplate = ({ food, restaurant }) => {
  
           <!-- Impact Block -->
           <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 16px; padding: 20px 22px; display: flex; align-items: flex-start; gap: 14px;">
-            <div style="background: #16a34a; border-radius: 50%; width: 36px; height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #fff; font-size: 18px; line-height: 1;">&#127807;</span>
-            </div>
             <div>
-              <p style="color: #14532d; font-size: 13px; font-weight: 700; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.8px;">Impact Made</p>
+              <p style="color: #14532d; font-size: 13px; font-weight: 700; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.8px;">&#127807; Impact Made</p>
               <p style="color: #166534; font-size: 14px; margin: 0; line-height: 1.5;">
                 Every collection counts. You've helped redirect good food to people who need it most.
               </p>
@@ -355,3 +371,4 @@ export const foodCollectedNgoTemplate = ({ food, restaurant }) => {
   </div>
   `;
 };
+

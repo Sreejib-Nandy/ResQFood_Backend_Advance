@@ -213,7 +213,7 @@ export const completeProfile = async (req, res) => {
 
         try {
               if (user?.email) {
-                await sendEmail({
+                sendEmail({
                   to: user.email,
                   subject: "Welcome to ResQFood 🌱 Let’s Make an Impact Together",
                   html: welcomeUserTemplate({user}),

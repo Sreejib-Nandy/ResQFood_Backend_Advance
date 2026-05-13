@@ -219,6 +219,7 @@ export const completeProfile = async (req, res) => {
                   html: welcomeUserTemplate({user}),
                 });
               }
+              console.log("Email Sent!")
             } catch (error) {
               console.error("Email sending failed:", error.message);
             }

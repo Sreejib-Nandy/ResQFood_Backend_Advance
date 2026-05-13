@@ -3,21 +3,21 @@ import nodemailer from "nodemailer";
 export const sendEmail = async ({ to, subject, html }) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT),
-      secure: false, // true only for port 465
+      host: "smtp-relay.brevo.com",
+      port: 587,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
+      from: process.env.SENDER_EMAIL,
       to,
       subject,
       html,
     });
+    console.log(info);
 
   } catch (error) {
     console.error("Email error:", error.message);
